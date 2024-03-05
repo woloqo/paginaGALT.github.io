@@ -1,31 +1,8 @@
-header{
-    display: flex;
-    height: 80px;
-    background-color: #ffffff00;
-    justify-content: center;
-    align-items: center;
-}
-
-nav a{
-    font-weight: bold;
-    text-decoration: none;
-    padding: 50px;
-    color: #ffffff;
-}
-nav a:hover{
-    text-decoration-line: underline;
-}
-
 body {
 	margin: 0 auto;
-	font-family: monospace, sans-serif;
-	color: #ffffff;
-	background-color: #1c2020;
+	color: #000000;
 	font-size: 1em;
 	line-height: 1.5em;
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-bottom: 20px;
 }
 
 h1{
@@ -37,6 +14,11 @@ h1{
     text-align: center;
 }    
 
+#main-content{
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
 p{
     text-indent: 2%;
 }
@@ -47,7 +29,6 @@ p{
     width: 95%;
     margin: auto;
     grid-gap: 10px;
-    padding: 20px 0;
     overflow: hidden;
 }
 
@@ -67,7 +48,7 @@ p{
 }
 
 .galeria a:hover img{
-    filter: blur(2px);
+    filter:blur(2px);
     transform: scale(1.3);
 }
 
@@ -89,6 +70,7 @@ p{
 }
 
 .light-box:target{
+    backdrop-filter: blur(2px);
     transform: scale(1);
 }
 
