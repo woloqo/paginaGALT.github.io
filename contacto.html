@@ -15,63 +15,58 @@
     emailjs.init('GfZspKesE1gO5T1yI')
     </script>
 </head>
-<body>
-    
+  <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
-        <div class="container-fluid">
-          <img src="img/favicon64.png" alt="woloqo.">
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <li class="nav-item">
-                <a class="nav-link" href="https://woloqo.github.io/paginagalt/">Inicio</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="https://woloqo.github.io/paginagalt/biografia.html">Autobiografia</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="https://woloqo.github.io/paginagalt/ejercicios.html">Ejercicios</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="https://woloqo.github.io/paginagalt/contacto.html">Contacto</a>
-              </li>
+      <div class="container-fluid">
+        <img src="img/favicon64.png" alt="woloqo.">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="https://woloqo.github.io/paginagalt/">Inicio</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://woloqo.github.io/paginagalt/biografia.html">Autobiografia</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://woloqo.github.io/paginagalt/ejercicios.html">Ejercicios</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://woloqo.github.io/paginagalt/contacto.html">Contacto</a>
+            </li>
+        </div>
+      </div>
+    </nav>
+
+    <div id="main-content">
+      <p style="text-align: center;">Hello, aqui puedes encontrar distintos links hacia mis paginas personales o en su defecto, mandarme un correo directamente :)</p>
+      <h1>Correo</h1>
+      <form id="form">
+          <div class="field">
+            <label for="from_name">Nombre: </label>
+            <input type="text" name="from_name" id="from_name">
           </div>
-        </div>
-      </nav>
+          <div class="field">
+            <label for="message">Mensaje: </label>
+            <input type="text" name="message" id="message">
+          </div>
+          <div class="field">
+            <label for="email_id">Correo:</label>
+            <input type="text" name="email_id" id="email_id">
+          </div>
+          <input type="submit" id="button" value="Send Email" >
+        </form>
 
-      <div id="main-content">
+        <script src="sendgmail.js"></script>
 
-        <p style="text-align: center;">Hello, aqui puedes encontrar distintos links hacia mis paginas personales o en su defecto, mandarme un correo directamente :)</p>
-
-        <h1>Redes sociales</h1>
-
-        <section class="social">
-            <a href="https://www.facebook.com/gabrielito.lopez.902?mibextid=ZbWKwL" target="_blank"> <img src="img/redes/face.png" alt="Facebook"></a>
-            <a href="https://www.instagram.com/woloqo/" target="_blankS"> <img src="img/redes/insta.png" alt="Instagram"></a>
-        </section>
-
-        <h1>Correo</h1>
-        <form id="form">
-            <div class="field">
-              <label for="from_name">Nombre: </label>
-              <input type="text" name="from_name" id="from_name">
-            </div>
-            <div class="field">
-              <label for="message">Mensaje: </label>
-              <input type="text" name="message" id="message">
-            </div>
-            <div class="field">
-              <label for="email_id">Correo:</label>
-              <input type="text" name="email_id" id="email_id">
-            </div>
-            <input type="submit" id="button" value="Send Email" >
-          </form>
-
-          <script src="sendgmail.js"></script>
-
-        </div>
-
-</body>
+      <h1>Redes sociales</h1>
+      <section class="social">
+        <a href="https://www.facebook.com/gabrielito.lopez.902?mibextid=ZbWKwL" target="_blank"> <img src="img/redes/face.png" alt="Facebook"></a>
+        <a href="https://www.instagram.com/woloqo/" target="_blankS"> <img src="img/redes/insta.png" alt="Instagram"></a>
+      </section>
+      
+    </div>
+  </body>
 </html>
