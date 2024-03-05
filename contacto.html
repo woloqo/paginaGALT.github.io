@@ -8,6 +8,12 @@
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript"
+    src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+    <script type="text/javascript">
+    emailjs.init('GfZspKesE1gO5T1yI')
+    </script>
 </head>
 <body>
     
@@ -35,11 +41,27 @@
         </div>
       </nav>
 
-      <section id="contact">
+      <div id="contact">
 
-        <p>aki va lo de los contactos xddddddddd</p>
+        <form id="form">
+            <div class="field">
+              <label for="from_name">Nombre: </label>
+              <input type="text" name="from_name" id="from_name">
+            </div>
+            <div class="field">
+              <label for="message">Mensaje: </label>
+              <input type="text" name="message" id="message">
+            </div>
+            <div class="field">
+              <label for="email_id">Correo:</label>
+              <input type="text" name="email_id" id="email_id">
+            </div>
+            <input type="submit" id="button" value="Send Email" >
+          </form>
 
-      </section>
+          <script src="sendgmail.js"></script>
+
+        </div>
 
 </body>
 </html>
