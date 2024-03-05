@@ -17,4 +17,9 @@ document.getElementById('form')
       btn.value = 'Send Email';
       alert(JSON.stringify(err));
     });
+
+    document.getElementById("from_name").value = "";
+    document.getElementById("message").value = "";
+    document.getElementById("email_id").value = "";
+
 });
