@@ -15,7 +15,7 @@ const playerColor = '#FFFFFF';
 const floorColor  = '#666666';
 const wallColor   = '#000000';
 const colorSuelo  = '#666666';
-const colorTecho  = '#752300';
+const colorTecho  = '#3F3F3F';
 
 //objeto tiles jejejjejej]
 var tiles;
@@ -76,9 +76,9 @@ function rescalarCanvas(){
 }
 
 function sueloYTecho(){
-    ctx.fillStyle = colorSuelo;
-    ctx.fillRect(0, 0, 500, 250);
     ctx.fillStyle = colorTecho;
+    ctx.fillRect(0, 0, 500, 250);
+    ctx.fillStyle = colorSuelo;
     ctx.fillRect(0, 250, 500, 500);
 }
 
@@ -358,7 +358,6 @@ class Player{
         this.rayos = [];
 
         //calcular el angulo de cada rayo jejejejejjejej
-        
         var incAngulo =  gradosARadianes(FOV/this.numRayos);
         var anguloInicial = gradosARadianes(this.anguloRotacion - mFOV);
 
@@ -369,8 +368,6 @@ class Player{
             this.rayos[i] = new Ray(this.ctx, this.escenario, this.x, this.y, this.anguloRotacion, anguloRayo, i);
             anguloRayo += incAngulo;
         }
-
-        //this.rayo = new Ray(this.ctx, this.escenario, this.x, this.y, this.anguloRotacion, 0);
 
     }
 
@@ -411,11 +408,6 @@ class Player{
             this.rayos[i].y = this.y;
             this.rayos[i].setAngulo(this.anguloRotacion);
         }
-
-        // this.rayo.setAngulo(this.anguloRotacion);
-        // this.rayo.x = this.x;
-        // this.rayo.y = this.y;
-        // this.rayo.draw();
     }
     
     draw(){
@@ -455,6 +447,7 @@ function cleanCanvas(){
 }
 
 function main(){
+    //woloqo was here
     //console.log("Hello wolrd");
     cleanCanvas();
     //escenario.draw();
