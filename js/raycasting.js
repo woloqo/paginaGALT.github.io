@@ -15,6 +15,9 @@ const playerColor = '#FFFFFF';
 const floorColor  = '#666666';
 const wallColor   = '#000000';
 
+const FOV = 60;
+const mFOV = FOV/2;
+
 var lvl1 = [
     [1,1,1,1,1,1,1,1,1,1],
     [1,0,0,0,0,0,0,0,0,1],
@@ -73,13 +76,20 @@ function distanciaEntrePuntos(x1, y1, x2, y2){
     return Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
 }
 
+function gradosARadianes(angulo){
+    angulo = angulo * (Math.PI / 180);
+    return angulo;
+}
+
 //Clase rayo
 class Ray{
     constructor(con, escenario, x, y, anguloJugador, incrementoAngulo, columna){
+        this.angulo = anguloJugador + incrementoAngulo;
         this.incrementoAngulo = incrementoAngulo;
-        this.angulo = anguloJugador;
+        this.anguloJugador = anguloJugador;
         this.escenario = escenario;
         this.columna = columna;
+        this.distancia = 0;
         this.wallHitXHor = 0;
         this.wallHitYHor = 0;
         this.wallHitXVer = 0;
@@ -92,6 +102,7 @@ class Ray{
     }
 
     setAngulo(angulo){
+        this.anguloJugador = angulo;
         this.angulo = normalize(angulo + this.incrementoAngulo);
     }
 
@@ -205,27 +216,51 @@ class Ray{
 
         //checamos la colision mas cercana entre la colision x e y
         if(distanciaHorizontal < distanciaVertical){
+            this.distancia = distanciaHorizontal;
             this.wallHitX = this.wallHitXHor;
             this.wallHitY = this.wallHitYHor;
         }
         else{
+            this.distancia = distanciaVertical;
             this.wallHitX = this.wallHitXVer;
             this.wallHitY = this.wallHitYVer;
         }
+
+        //corregir el ojo de pex
+        this.distancia = this.distancia * Math.cos(this.anguloJugador - this.angulo);
+
+    }
+    
+    renderPared(){
+        var altoTile = 500;
+        var distanciaPlanoProyeccion = (cWidth/2)/Math.tan(mFOV);
+        var alturaMuro = (altoTile/this.distancia) * distanciaPlanoProyeccion;
+
+        //wewewe lets calcular donde empieza y donde termina la linea ejjeje
+        var y0 = parseInt(cHeight/2) - parseInt(alturaMuro/2);
+        var y1 = y0 + alturaMuro;
+        this.x = this.columna;
+
+        //ahora si la dibujamos ejhjejejejejejejejjeje 
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.x, y0);
+        this.ctx.lineTo(this.x, y1);
+        this.ctx.strokeStyle = '#666666';
+        this.ctx.stroke();
     }
 
     draw(){
         //Dibuja el rayo
         this.cast();
+        this.renderPared();
 
-        var xDest = this.wallHitX;
-        var yDest = this.wallHitY;
-
-        this.ctx.beginPath();
-        this.ctx.moveTo(this.x, this.y);
-        this.ctx.lineTo(xDest, yDest);
-        this.ctx.strokeStyle = 'red';
-        this.ctx.stroke();
+        // var xDest = this.wallHitX;
+        // var yDest = this.wallHitY;
+        // this.ctx.beginPath();
+        // this.ctx.moveTo(this.x, this.y);
+        // this.ctx.lineTo(xDest, yDest);
+        // this.ctx.strokeStyle = 'red';
+        // this.ctx.stroke();
     }
 }
 
@@ -288,7 +323,23 @@ class Player{
         this.velMov   = 3;                   //En pixeles;
         this.velRot   = 3 * (Math.PI / 180); //Grados
 
-        this.rayo = new Ray(this.ctx, this.escenario, this.x, this.y, this.anguloRotacion, 0);
+        this.numRayos = cWidth;
+        this.rayos = [];
+
+        //calcular el angulo de cada rayo jejejejejjejej
+        
+        var incAngulo =  gradosARadianes(FOV/this.numRayos);
+        var anguloInicial = gradosARadianes(this.anguloRotacion - mFOV);
+
+        var anguloRayo = anguloInicial;
+
+        //RTX BABY (literalmente, rtx pero bebe)
+        for(let i = 0; i < this.numRayos; i++){
+            this.rayos[i] = new Ray(this.ctx, this.escenario, this.x, this.y, this.anguloRotacion, anguloRayo, i);
+            anguloRayo += incAngulo;
+        }
+
+        //this.rayo = new Ray(this.ctx, this.escenario, this.x, this.y, this.anguloRotacion, 0);
 
     }
 
@@ -322,29 +373,42 @@ class Player{
         //giro
         this.anguloRotacion += this.rotar * this.velRot;
         this.anguloRotacion = normalize(this.anguloRotacion);
+
+        //actualiza el angulo
+        for(let i = 0; i < this.numRayos; i++){
+            this.rayos[i].x = this.x;
+            this.rayos[i].y = this.y;
+            this.rayos[i].setAngulo(this.anguloRotacion);
+        }
+
+        // this.rayo.setAngulo(this.anguloRotacion);
+        // this.rayo.x = this.x;
+        // this.rayo.y = this.y;
+        // this.rayo.draw();
     }
     
     draw(){
         this.update();
-        //actualiza el angulo
-        this.rayo.setAngulo(this.anguloRotacion);
-        this.rayo.x = this.x;
-        this.rayo.y = this.y;
-        this.rayo.draw();
+        
+        //rayos
+        for(let i = 0; i < this.numRayos; i++){
+            // this.rayos[i].draw();
+            this.rayos[i].draw();
+        }
 
         //Cuadro
-        this.ctx.fillStyle = playerColor;
-        this.ctx.fillRect(this.x-3, this.y-3, 6, 6);
+        // this.ctx.fillStyle = playerColor;
+        // this.ctx.fillRect(this.x-3, this.y-3, 6, 6);
 
-        //Angulo
-        var xDes = this.x + Math.cos(this.anguloRotacion) * 20;
-        var yDes = this.y + Math.sin(this.anguloRotacion) * 20;
+        // //Angulo
+        // var xDes = this.x + Math.cos(this.anguloRotacion) * 20;
+        // var yDes = this.y + Math.sin(this.anguloRotacion) * 20;
 
-        this.ctx.beginPath();
-        this.ctx.moveTo(this.x, this.y);
-        this.ctx.lineTo(xDes, yDes);
-        this.ctx.strokeStyle = '#FFFFFF';
-        this.ctx.stroke();
+        // this.ctx.beginPath();
+        // this.ctx.moveTo(this.x, this.y);
+        // this.ctx.lineTo(xDes, yDes);
+        // this.ctx.strokeStyle = '#FFFFFF';
+        // this.ctx.stroke();
     }
 
 }
@@ -370,6 +434,6 @@ function cleanCanvas(){
 function main(){
     //console.log("Hello wolrd");
     cleanCanvas();
-    escenario.draw();
+    //escenario.draw();
     jugador.draw();
 }
