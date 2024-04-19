@@ -14,6 +14,11 @@ var escenario;
 const playerColor = '#FFFFFF';
 const floorColor  = '#666666';
 const wallColor   = '#000000';
+const colorSuelo  = '#666666';
+const colorTecho  = '#752300';
+
+//objeto tiles jejejjejej]
+var tiles;
 
 const FOV = 60;
 const mFOV = FOV/2;
@@ -23,8 +28,8 @@ var lvl1 = [
     [1,0,0,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,1,1,0,0,0,1],
-    [1,0,0,0,1,1,0,0,0,1],
+    [1,0,0,0,2,2,0,0,0,1],
+    [1,0,0,0,2,2,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,1],
@@ -65,6 +70,18 @@ document.addEventListener('keyup', function(tecla){
     }
 });
 
+function rescalarCanvas(){
+    canvas.style.height = '600px';
+    canvas.style.width = '600px';
+}
+
+function sueloYTecho(){
+    ctx.fillStyle = colorSuelo;
+    ctx.fillRect(0, 0, 500, 250);
+    ctx.fillStyle = colorTecho;
+    ctx.fillRect(0, 250, 500, 500);
+}
+
 //Normalizar angulo
 function normalize(angulo){
     angulo = angulo%(2*Math.PI);
@@ -97,8 +114,8 @@ class Ray{
         this.wallHitX = 0;
         this.wallHitY = 0;
         this.ctx = con;
-        this.x = x;
-        this.y = y;
+        this.pixelTextura;
+        this.idTextura = 0;
     }
 
     setAngulo(angulo){
@@ -219,13 +236,20 @@ class Ray{
             this.distancia = distanciaHorizontal;
             this.wallHitX = this.wallHitXHor;
             this.wallHitY = this.wallHitYHor;
+
+            var casilla = parseInt(this.wallHitX/tamTile);
+            this.pixelTextura = this.wallHitX - (casilla * tamTile);
         }
         else{
             this.distancia = distanciaVertical;
             this.wallHitX = this.wallHitXVer;
             this.wallHitY = this.wallHitYVer;
+
+            var casilla = parseInt(this.wallHitY/tamTile);
+            this.pixelTextura = this.wallHitY - (casilla * tamTile);
         }
 
+        this.idTextura = this.escenario.tile(this.wallHitX, this.wallHitY);
         //corregir el ojo de pex
         this.distancia = this.distancia * Math.cos(this.anguloJugador - this.angulo);
 
@@ -242,25 +266,26 @@ class Ray{
         this.x = this.columna;
 
         //ahora si la dibujamos ejhjejejejejejejejjeje 
-        this.ctx.beginPath();
-        this.ctx.moveTo(this.x, y0);
-        this.ctx.lineTo(this.x, y1);
-        this.ctx.strokeStyle = '#666666';
-        this.ctx.stroke();
+        var altoTextura = 64;
+        var alturaImagen = y0 - y1;
+
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(
+            tiles,                           //imagen en png
+            this.pixelTextura,               //x clipping
+            (this.idTextura-1)*altoTextura,  //y clipping
+            1,                               //ancho clippingggg jejej
+            64,                              //alto clipping jeje
+            this.columna,                    //posicion x jeje
+            y1,                              //posicion y jejeje
+            1,                               //anchura real
+            alturaImagen        
+        );
     }
 
     draw(){
-        //Dibuja el rayo
         this.cast();
         this.renderPared();
-
-        // var xDest = this.wallHitX;
-        // var yDest = this.wallHitY;
-        // this.ctx.beginPath();
-        // this.ctx.moveTo(this.x, this.y);
-        // this.ctx.lineTo(xDest, yDest);
-        // this.ctx.strokeStyle = 'red';
-        // this.ctx.stroke();
     }
 }
 
@@ -289,6 +314,12 @@ class Level{
         var collide = false;
         if(this.matriz[y][x] != 0) collide = true;
         return collide;
+    }
+
+    tile(x, y){
+        var casillaX = parseInt(x/this.anchoT);
+        var casillaY = parseInt(y/this.altoT);
+        return(this.matriz[casillaY][casillaX]);
     }
 
     draw(){
@@ -395,20 +426,6 @@ class Player{
             // this.rayos[i].draw();
             this.rayos[i].draw();
         }
-
-        //Cuadro
-        // this.ctx.fillStyle = playerColor;
-        // this.ctx.fillRect(this.x-3, this.y-3, 6, 6);
-
-        // //Angulo
-        // var xDes = this.x + Math.cos(this.anguloRotacion) * 20;
-        // var yDes = this.y + Math.sin(this.anguloRotacion) * 20;
-
-        // this.ctx.beginPath();
-        // this.ctx.moveTo(this.x, this.y);
-        // this.ctx.lineTo(xDes, yDes);
-        // this.ctx.strokeStyle = '#FFFFFF';
-        // this.ctx.stroke();
     }
 
 }
@@ -420,8 +437,14 @@ function init(){
     canvas.height = cHeight;
     canvas.width  = cWidth;
 
+    rescalarCanvas();
+
     escenario = new Level(canvas, ctx, lvl1);
     jugador = new Player(ctx, escenario, 100, 100);
+
+    //vargamos las imagenes jejeje
+    tiles = new Image();
+    tiles.src = "sprites/walls.png";
 
     setInterval(function(){main();},1000/FPS);
 }
@@ -435,5 +458,6 @@ function main(){
     //console.log("Hello wolrd");
     cleanCanvas();
     //escenario.draw();
+    sueloYTecho();
     jugador.draw();
 }
