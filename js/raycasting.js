@@ -5,7 +5,7 @@ var FPS = 30;
 //Dimension del canvas en pixeles
 var cWidth  = 500;
 var cHeight = 500;
-var tamTile = 50;
+var tamTile = cWidth/20;
 
 //Nivel
 var escenario;
@@ -21,20 +21,36 @@ const colorTecho  = '#3F3F3F';
 var tiles;
 
 const FOV = 60;
+const rmFOV = gradosARadianes(FOV/2);
 const mFOV = FOV/2;
 
 var lvl1 = [
-    [1,1,1,1,1,1,1,1,1,1],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,2,2,0,0,0,1],
-    [1,0,0,0,2,2,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1,1,1]
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,1,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+    [1,0,0,0,0,1,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+    [1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+    [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1],
+    [1,0,0,0,0,1,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+    [1,0,0,0,0,1,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+    [1,1,1,1,1,1,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+    [1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+    [1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+    [1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+    [1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+    [1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+    [1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1],
+    [1,0,0,1,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+    [1,0,0,1,1,0,0,0,1,0,0,0,1,1,0,1,1,1,1,1],
+    [1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
 ];
+
+var sprites = [];
+var zBuffer = [];
+
+var reprieto;
 
 //Input
 document.addEventListener('keydown', function(tecla){
@@ -72,7 +88,7 @@ document.addEventListener('keyup', function(tecla){
 
 function rescalarCanvas(){
     canvas.style.height = '600px';
-    canvas.style.width = '600px';
+    canvas.style.width = '800px';
 }
 
 function sueloYTecho(){
@@ -252,9 +268,10 @@ class Ray{
         this.idTextura = this.escenario.tile(this.wallHitX, this.wallHitY);
         //corregir el ojo de pex
         this.distancia = this.distancia * Math.cos(this.anguloJugador - this.angulo);
+        zBuffer[this.columna] = this.distancia;
 
     }
-    
+
     renderPared(){
         var altoTile = 500;
         var distanciaPlanoProyeccion = (cWidth/2)/Math.tan(mFOV);
@@ -300,6 +317,8 @@ class Level{
         //Dimensiones matriz
         this.anchoM  = this.matriz[0].length;
         this.altoM   = this.matriz.length;
+
+        console.log(this.altoM, this.anchoM);
 
         //Dimensiones del canvas
         this.altoC = this.canvas.height;
@@ -422,6 +441,109 @@ class Player{
 
 }
 
+class Sprite{
+
+	constructor(x,y,imagen){
+		
+		this.x 		 = x;
+		this.y 		 = y;
+		this.imagen  = imagen;
+		
+		this.distancia = 0;
+		this.angulo    = 0;
+		
+		this.visible = false;
+		
+	}	
+	
+	//CALCULAMOS EL ÁNGULO CON RESPECTO AL JUGADOR
+	calculaAngulo(){
+		var vectX = this.x - jugador.x;
+		var vectY = this.y - jugador.y;
+
+		var anguloJugadorObjeto = Math.atan2(vectY, vectX);
+		var diferenciaAngulo = jugador.anguloRotacion - anguloJugadorObjeto;
+			
+		if (diferenciaAngulo < (-1*Math.PI)) diferenciaAngulo += 2.0 * Math.PI;
+		if (diferenciaAngulo > Math.PI)  diferenciaAngulo -= 2.0 * Math.PI;
+
+		diferenciaAngulo = Math.abs(diferenciaAngulo);
+
+		if(diferenciaAngulo < rmFOV) this.visible = true;
+		else this.visible = false;
+
+        //console.log(diferenciaAngulo, mFOV);
+    }
+	
+	dibuja(){
+		
+		this.calculaAngulo();
+		this.distancia = distanciaEntrePuntos(jugador.x,jugador.y,this.x,this.y)
+		
+		if(this.visible == true){
+			
+			var altoTile = 500;		//Es la altura que tendrá el sprite al renderizarlo
+			var distanciaPlanoProyeccion = (cWidth/2) / Math.tan(FOV / 2);
+			var alturaSprite = (altoTile / this.distancia) * distanciaPlanoProyeccion;
+			
+			//CALCULAMOS DONDE EMPIEZA Y ACABA LA LÍNEA, CENTRÁNDOLA EN PANTALLA (EN VERTICAL)
+			var y0 = parseInt(cHeight/2) - parseInt(alturaSprite/2);
+			var y1 = y0 + alturaSprite;
+			
+			var altoTextura = 64;
+			var anchoTextura = 64;
+					
+			var alturaTextura = y0 - y1;
+			var anchuraTextura = alturaTextura;
+
+			// CALCULAMOS LA COORDENADA X DEL SPRITE
+			var dx = this.x - jugador.x;
+			var dy = this.y - jugador.y;
+			
+			var spriteAngle = Math.atan2(dy, dx) - jugador.anguloRotacion;
+			
+			var viewDist = 500;
+			
+			var x0 = Math.tan(spriteAngle) * viewDist;
+			var x = (cHeight/2 + x0 - anchuraTextura/2);
+
+			ctx.imageSmoothingEnabled = false;	//PIXELAMOS LA IMAGEN
+			
+			//proporción de anchura de X
+			var anchuraColumna = alturaTextura/altoTextura;	
+			
+			for(let i=0; i< anchoTextura; i++){
+				for(let j=0; j<anchuraColumna; j++){
+					
+					var x1 = parseInt(x+((i-1)*anchuraColumna)+j);	
+					
+					//COMPARAMOS LA LÍNEA ACTUAL CON LA DISTANCIA DEL ZBUFFER PARA DECIDIR SI DIBUJAMOS
+					if(zBuffer[x1] > this.distancia){
+                        //console.log(zBuffer[x1],i,0,1,altoTextura-1,x1,y1,1,alturaTextura);
+						ctx.drawImage(this.imagen,i,0,1,altoTextura-1,x1,y1,1,alturaTextura);
+					}
+					
+				}
+			}
+		}
+	}
+}
+ 
+function renderSprites(){
+	sprites.sort(function(obj1, obj2) {
+		// Ascending: obj1.distancia - obj2.distancia
+		// Descending: obj2.distancia - obj1.distancia
+		return obj2.distancia - obj1.distancia;
+	});
+	
+	//DIBUJAMOS LOS SPRITES UNO POR UNO
+	for(a=0; a<sprites.length; a++){
+        //console.log(sprites[a]);
+		sprites[a].dibuja();
+	}
+  
+}
+
 function init(){
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
@@ -438,6 +560,11 @@ function init(){
     tiles = new Image();
     tiles.src = "sprites/walls.png";
 
+    reprieto = new Image();
+    reprieto.src = "sprites/reprieto.jpg";
+    
+    sprites[0] = new Sprite(100, 300, reprieto);
+
     setInterval(function(){main();},1000/FPS);
 }
 
@@ -453,4 +580,5 @@ function main(){
     //escenario.draw();
     sueloYTecho();
     jugador.draw();
+    renderSprites();
 }

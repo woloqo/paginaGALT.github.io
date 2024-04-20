@@ -131,3 +131,13 @@ input[type="submit"] {
     text-align: center;
     align-items: center;
 }
+
+.jueguito{
+    text-align: center;
+}
+
+.juego{
+    padding: 0;
+    margin: auto;
+    display: block;
+}
