@@ -5,7 +5,9 @@ var FPS = 30;
 //Dimension del canvas en pixeles
 var cWidth  = 500;
 var cHeight = 500;
-var tamTile = cWidth/20;
+
+var render = true;
+var renderAbanico = false;
 
 //Nivel
 var escenario;
@@ -17,40 +19,66 @@ const wallColor   = '#000000';
 const colorSuelo  = '#666666';
 const colorTecho  = '#3F3F3F';
 
-//objeto tiles jejejjejej]
+//objetosss jejejjejej]
 var tiles;
+var reprieto;
+var sprite;
 
 const FOV = 60;
 const rmFOV = gradosARadianes(FOV/2);
 const mFOV = FOV/2;
 
 var lvl1 = [
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,0,0,0,0,1,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
-    [1,0,0,0,0,1,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
-    [1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
-    [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1],
-    [1,0,0,0,0,1,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
-    [1,0,0,0,0,1,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
-    [1,1,1,1,1,1,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
-    [1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+    [4,4,4,4,4,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [4,0,0,0,0,4,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+    [4,0,0,0,0,1,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+    [4,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1],
+    [4,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1],
+    [4,0,0,0,0,1,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+    [4,0,0,0,0,4,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+    [4,4,4,4,4,1,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
     [1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
     [1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
     [1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
     [1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
     [1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1],
-    [1,0,0,1,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
-    [1,0,0,1,1,0,0,0,1,0,0,0,1,1,0,1,1,1,1,1],
     [1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1],
+    [1,0,0,1,2,1,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+    [1,0,0,2,1,2,0,0,1,0,0,0,1,1,0,1,1,1,1,1],
+    [1,0,0,1,2,1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+];
+var lvl2 = [
+    [1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,1,1,0,0,0,1],
+    [1,0,0,0,1,1,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1],
+];
+var lvl3 = [
+	[1,1,2,1,1,1,2,2,1,1],
+	[1,0,0,0,0,0,0,1,1,1],
+	[1,0,0,0,0,0,0,1,1,1],
+	[1,0,0,0,0,0,0,0,0,3],
+	[1,0,1,2,1,0,0,0,0,1],
+	[1,0,0,0,1,0,0,0,0,1],
+	[1,0,0,0,1,0,0,3,3,1],
+	[1,0,0,1,1,0,0,1,1,1],
+	[1,0,0,0,0,0,0,0,0,1],
+	[1,1,1,1,1,1,1,1,1,1]
 ];
 
 var sprites = [];
 var zBuffer = [];
 
-var reprieto;
+
 
 //Input
 document.addEventListener('keydown', function(tecla){
@@ -88,7 +116,7 @@ document.addEventListener('keyup', function(tecla){
 
 function rescalarCanvas(){
     canvas.style.height = '600px';
-    canvas.style.width = '800px';
+    canvas.style.width = '600px';
 }
 
 function sueloYTecho(){
@@ -289,7 +317,7 @@ class Ray{
         ctx.imageSmoothingEnabled = false;
         ctx.drawImage(
             tiles,                           //imagen en png
-            this.pixelTextura,               //x clipping
+            this.pixelTextura+escenario.altoM,               //x clipping
             (this.idTextura-1)*altoTextura,  //y clipping
             1,                               //ancho clippingggg jejej
             64,                              //alto clipping jeje
@@ -304,12 +332,27 @@ class Ray{
         this.cast();
         this.renderPared();
     }
+
+    drawanglee(){
+        this.cast();
+
+        var xDestino = this.wallHitX;    
+        var yDestino = this.wallHitY;	
+        
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.x, this.y);
+        this.ctx.lineTo(xDestino, yDestino);
+        this.ctx.strokeStyle = "red";
+        this.ctx.stroke();
+    }
 }
 
 //Clase escenario
 class Level{
 
     constructor(can, con, arr){
+
+        
         this.canvas = can;
         this.matriz = arr;
         this.ctx = con;
@@ -317,6 +360,8 @@ class Level{
         //Dimensiones matriz
         this.anchoM  = this.matriz[0].length;
         this.altoM   = this.matriz.length;
+        
+        
 
         console.log(this.altoM, this.anchoM);
 
@@ -437,6 +482,33 @@ class Player{
             // this.rayos[i].draw();
             this.rayos[i].draw();
         }
+			
+    }
+
+    drawanglee(){
+        this.update();
+
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.fillRect(this.x-3, this.y-3, 6,6);
+        
+        
+        //LÍNEA DIRECCIÓN
+        var xDestino = this.x + Math.cos(this.anguloRotacion) * 40;    //40 es la longitud de la línea
+        var yDestino = this.y + Math.sin(this.anguloRotacion) * 40;	
+        
+        if(renderAbanico){
+            for(let i = 0; i < this.numRayos; i++){
+                // this.rayos[i].draw();
+                this.rayos[i].drawanglee();
+            }
+        }
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.x, this.y);
+        this.ctx.lineTo(xDestino, yDestino);
+        this.ctx.strokeStyle = "#FFFFFF";
+        this.ctx.stroke();
+        
     }
 
 }
@@ -544,6 +616,8 @@ function renderSprites(){
   
 }
 
+var tamTile = parseInt(cHeight/lvl1[0].length);
+
 function init(){
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
@@ -562,8 +636,12 @@ function init(){
 
     reprieto = new Image();
     reprieto.src = "sprites/reprieto.jpg";
+
+    sprite = new Image();
+    sprite.src = "sprites/sprite.png";
     
-    sprites[0] = new Sprite(100, 300, reprieto);
+    sprites.push(new Sprite(100, 300, reprieto));
+    sprites.push(new Sprite(420, 460, sprite));
 
     setInterval(function(){main();},1000/FPS);
 }
@@ -573,12 +651,33 @@ function cleanCanvas(){
     canvas.width  = canvas.width;
 }
 
+function switchMode() {
+    console.log("jelo jelo jelo ahora es",render);
+    if(render == true) render = false;
+    else if(render == false) render = true;
+
+    
+}
+
+function switchAbanico(){
+    if(renderAbanico == true) renderAbanico = false;
+    else if(renderAbanico == false) renderAbanico = true;
+}
+
+
 function main(){
     //woloqo was here
     //console.log("Hello wolrd");
     cleanCanvas();
-    //escenario.draw();
-    sueloYTecho();
-    jugador.draw();
-    renderSprites();
+
+    if(render){
+        sueloYTecho();
+        jugador.draw();
+        renderSprites();
+    }
+    else{
+        escenario.draw();
+        jugador.drawanglee();
+    }
+
 }
