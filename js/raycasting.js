@@ -7,7 +7,7 @@ var cWidth  = 500;
 var cHeight = 500;
 
 var render = true;
-var renderAbanico = false;
+var renderAbanico = true;
 
 //Nivel
 var escenario;
@@ -21,6 +21,8 @@ const colorTecho  = '#3F3F3F';
 
 //objetosss jejejjejej]
 var tiles;
+var arma;
+var spriteArma;
 var reprieto;
 var sprite;
 var maruchan;
@@ -84,6 +86,7 @@ var zBuffer = [];
 
 //Input
 document.addEventListener('keydown', function(tecla){
+    //console.log(tecla);
     switch(tecla.code){
         case "KeyW":
             jugador.up();
@@ -96,6 +99,16 @@ document.addEventListener('keydown', function(tecla){
             break;
         case "ArrowLeft":
             jugador.left();
+            break;
+        case "Space":
+            jugador.shoot();
+            arma.changeFrame();
+            break;
+        case "KeyM":
+            switchMode();
+            break;
+        case "Backspace":
+            switchAbanico();
             break;
     }
 });
@@ -112,6 +125,9 @@ document.addEventListener('keyup', function(tecla){
             break;
         case "ArrowLeft":
             jugador.stopRotating();
+            break;
+        case "Space":
+            arma.changeFrame();
             break;
     }
 });
@@ -513,11 +529,20 @@ class Player{
         
     }
 
+    shoot(){
+        for(let i=0; i<sprites.length; i++){
+            if(sprites[i].shootable){
+                console.log("Le diste a:", sprites[i].nombre);
+                sprites.splice(i, 1);
+            }
+        }
+    }
+
 }
 
 class Sprite{
 
-	constructor(x,y,imagen){
+	constructor(x,y,imagen, nombre){
 		
 		this.x 		 = x;
 		this.y 		 = y;
@@ -527,7 +552,10 @@ class Sprite{
 		this.angulo    = 0;
 		
 		this.visible = false;
-		
+		this.shootable = false;
+
+        this.nombre = nombre;
+
 	}	
 	
 	//CALCULAMOS EL ÁNGULO CON RESPECTO AL JUGADOR
@@ -546,6 +574,17 @@ class Sprite{
 		if(diferenciaAngulo < rmFOV) this.visible = true;
 		else this.visible = false;
 
+        //if(this.visible) console.log(diferenciaAngulo, anguloJugadorObjeto, this.nombre);
+
+        if(diferenciaAngulo == rmFOV){
+            this.shootable = true;
+            console.log(this.nombre, " es ", this.shootable, this.visible, anguloJugadorObjeto);
+        }
+        else{
+            this.shootable = false;
+        }
+
+        //console.log(diferenciaAngulo);
         //console.log(diferenciaAngulo, mFOV);
     }
 	
@@ -555,7 +594,6 @@ class Sprite{
 		this.distancia = distanciaEntrePuntos(jugador.x,jugador.y,this.x,this.y)
 		
 		if(this.visible == true){
-			
 			var altoTile = 500;		//Es la altura que tendrá el sprite al renderizarlo
 			var distanciaPlanoProyeccion = (cWidth/2) / Math.tan(FOV / 2);
 			var alturaSprite = (altoTile / this.distancia) * distanciaPlanoProyeccion;
@@ -590,6 +628,7 @@ class Sprite{
 				for(let j=0; j<anchuraColumna; j++){
 					
 					var x1 = parseInt(x+((i-1)*anchuraColumna)+j);	
+                    if((i >= 10 && i <= 30) && x1 == cWidth/2) this.shootable = true;
 					
 					//COMPARAMOS LA LÍNEA ACTUAL CON LA DISTANCIA DEL ZBUFFER PARA DECIDIR SI DIBUJAMOS
 					if(zBuffer[x1] > this.distancia){
@@ -603,6 +642,28 @@ class Sprite{
 	}
 }
  
+class Arma{
+    constructor(image){
+        this.image = image;
+        this.tam = this.image.height;
+        this.x = (cWidth/2)-(this.tam/2)+10;
+        this.y = cHeight-this.tam;
+        this.frame = 0;
+        console.log(this.image, this.tam);
+    }
+
+    draw(){
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(this.image, this.frame*256, 0, 256, 256, this.x, this.y, 256, 256);
+        //console.log(this.image);
+    }
+
+    changeFrame(){
+        if(this.frame == 0) this.frame = 2;
+        else this.frame = 0;
+    }
+}
+
 function renderSprites(){
 	sprites.sort(function(obj1, obj2) {
 		// Ascending: obj1.distancia - obj2.distancia
@@ -632,6 +693,10 @@ function init(){
     escenario = new Level(canvas, ctx, lvl1);
     jugador = new Player(ctx, escenario, 100, 100);
 
+    spriteArma = new Image();
+    spriteArma.src = "sprites/arma.png";
+    arma = new Arma(spriteArma);
+
     //vargamos las imagenes jejeje
     tiles = new Image();
     tiles.src = "sprites/walls.png";
@@ -648,10 +713,10 @@ function init(){
     tyler = new Image();
     tyler.src = "sprites/tyler.png";
     
-    sprites.push(new Sprite(100, 300, reprieto));
-    sprites.push(new Sprite(420, 440, sprite));
-    sprites.push(new Sprite(420, 450, maruchan));
-    sprites.push(new Sprite(455, 50, tyler));
+    sprites.push(new Sprite(100, 300, reprieto, "reprieto"));
+    sprites.push(new Sprite(420, 440, sprite, "sprite"));
+    sprites.push(new Sprite(420, 450, maruchan, "maruchan"));
+    sprites.push(new Sprite(455, 50, tyler, "tyler"));
 
     setInterval(function(){main();},1000/FPS);
 }
@@ -665,8 +730,6 @@ function switchMode() {
     console.log("jelo jelo jelo ahora es",render);
     if(render == true) render = false;
     else if(render == false) render = true;
-
-    
 }
 
 function switchAbanico(){
@@ -684,6 +747,7 @@ function main(){
         sueloYTecho();
         jugador.draw();
         renderSprites();
+        arma.draw();
     }
     else{
         escenario.draw();
