@@ -24,6 +24,7 @@ var tiles;
 var reprieto;
 var sprite;
 var maruchan;
+var tyler;
 
 const FOV = 60;
 const rmFOV = gradosARadianes(FOV/2);
@@ -643,10 +644,14 @@ function init(){
 
     maruchan = new Image();
     maruchan.src = "sprites/maruchan.png";
+
+    tyler = new Image();
+    tyler.src = "sprites/tyler.png";
     
     sprites.push(new Sprite(100, 300, reprieto));
-    sprites.push(new Sprite(420, 460, sprite));
-    sprites.push(new Sprite(400, 460, maruchan));
+    sprites.push(new Sprite(420, 440, sprite));
+    sprites.push(new Sprite(420, 450, maruchan));
+    sprites.push(new Sprite(455, 50, tyler));
 
     setInterval(function(){main();},1000/FPS);
 }
