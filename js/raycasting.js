@@ -23,13 +23,14 @@ const colorTecho  = '#3F3F3F';
 var tiles;
 var reprieto;
 var sprite;
+var maruchan;
 
 const FOV = 60;
 const rmFOV = gradosARadianes(FOV/2);
 const mFOV = FOV/2;
 
 var lvl1 = [
-    [4,4,4,4,4,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [4,4,4,4,4,4,1,1,1,4,3,4,1,4,3,4,1,1,1,1],
     [4,0,0,0,0,4,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
     [4,0,0,0,0,1,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
     [4,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1],
@@ -48,7 +49,7 @@ var lvl1 = [
     [1,0,0,1,2,1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    [1,1,1,1,1,1,1,1,1,4,3,4,1,1,1,1,1,1,1,1]
 ];
 var lvl2 = [
     [1,1,1,1,1,1,1,1,1,1],
@@ -390,7 +391,7 @@ class Level{
         var color;
         for(var i=0; i<this.altoM; i++){
             for(var j=0; j<this.anchoM;j++){
-                if(this.matriz[i][j] == 1) color = wallColor;
+                if(this.matriz[i][j] != 0) color = wallColor;
                 else color = floorColor;
 
                 this.ctx.fillStyle = color;
@@ -639,9 +640,13 @@ function init(){
 
     sprite = new Image();
     sprite.src = "sprites/sprite.png";
+
+    maruchan = new Image();
+    maruchan.src = "sprites/maruchan.png";
     
     sprites.push(new Sprite(100, 300, reprieto));
     sprites.push(new Sprite(420, 460, sprite));
+    sprites.push(new Sprite(400, 460, maruchan));
 
     setInterval(function(){main();},1000/FPS);
 }
